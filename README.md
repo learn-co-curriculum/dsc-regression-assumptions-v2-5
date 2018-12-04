@@ -2,7 +2,7 @@
 # Assumptions for Linear Regression
 
 ## Introduction
-Least Squares is the most common regression technique for linear models. As long as our model satisfies the least squares regression assumptions , we can always get the best possible estimates.
+Least Squares is the most common regression technique for linear models. As long as our model satisfies the least squares regression assumptions, we can get the best possible estimates.
 
 ## Objectives
 You will be able to:
@@ -12,13 +12,13 @@ You will be able to:
 - Identify approaches to check for regression assumptions
 
 ## About regression
-Regression is a powerful analysis technique that is routinely used to answer complex analytical questions. However, if you don’t satisfy some assumptions, you might not be able to trust the results.
+Regression is a powerful analysis technique that is routinely used to answer complex analytical questions. However, if you don’t satisfy some of the assumptions, you might not be able to trust the results.
 
-In this lesson, we shall look at ordinary least squares regression assumptions, their importance and look at some techniques to help us determine whether our model satisfies the assumptions.
+In this lesson, we shall look at ordinary least squares regression assumptions and their importance as well as some techniques to help us determine whether our model satisfies the assumptions.
 
 ## Regression is "Parametric"
 
-Regression is a parametric technique i.e. it uses parameters learned from the data, so it makes certain assumptions assumptions. These assumptions define the complete scope of regression analysis and it is **mandatory** that underlying data fulfills these assumptions. If these assumptions are violated, regression makes biased and unreliable predictions. Luckily, we have measures to check for these assumptions which will be mentioned below. 
+Regression is a parametric technique i.e. it uses parameters learned from the data, so it makes certain assumptions. These assumptions define the complete scope of regression analysis and it is **mandatory** that underlying data fulfills these assumptions. If these assumptions are violated, regression makes biased and unreliable predictions. Luckily, we have measures to check for these assumptions which will be mentioned below. 
 
 ## Linearity
 
@@ -27,7 +27,7 @@ Regression is a parametric technique i.e. it uses parameters learned from the da
 ![](lin.png)
 
 
-As shown above, If we try to fit a linear model to a non-linear data set, OLS would fail to capture the trend mathematically, thus resulting in an inaccurate relationship. Also, this will result in erroneous predictions on an unseen data set.  
+As shown above, If we try to fit a linear model to a non-linear data set, Ordinary Least Squares (OLS) would fail to capture the trend mathematically, thus resulting in an inaccurate relationship. Also, this will result in erroneous predictions on an unseen data set.  
 
 >The linearity assumption can best be tested with scatter plots 
 
@@ -42,7 +42,7 @@ In the above example, we can see that an outlier prohibit the model to estimate 
 
 >Satisfying the normality assumption allows you to perform statistical hypothesis testing and generate reliable confidence intervals and prediction intervals.
 
-Linearity assumption requires variables to be normally distributed for concluding some sort of statistical significance. It also require that the calculated error values also follow a normal distribution to produce unbiased estimates with the minimum variance.
+Linearity assumption requires variables to be normally distributed for concluding some sort of statistical significance. It also requires that the calculated error values also follow a normal distribution to produce unbiased estimates with the minimum variance.
 
 However, keep in mind that this assumption is not mandatory for regression if you dont want to do any hypothesis testing. OLS works fine for non-normal data distributions in the context of prediction. 
 
