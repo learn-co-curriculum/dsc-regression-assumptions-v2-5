@@ -62,7 +62,7 @@ The Q-Q plot (quantile-quantile plot) is used to help assess if a sample comes f
 
 Below, you can find a few examples of comparing histograms and corresponding plots. You can see how the quantiles of normal data appear as a straight line along the diagonal when plotted against a standard normal distribution's quantiles. The skewness and kurtosis of data can also be inspected this way  
 
-<img src="images/qq.jpg" width="600">
+<img src="images/inhouse_qq_plots.png" width="600">
 
 In the context of normality of residuals, Q-Q plots can help you validate the assumption of normally distributed residuals. It uses standardized values of residuals to determine the normal distribution of errors. Ideally, this plot should show a straight line. A curved, distorted line suggests residuals have a non-normal distribution.[Here is a good article](https://data.library.virginia.edu/understanding-q-q-plots/) explaining the interpretation of Q-Q plots in detail. 
 
