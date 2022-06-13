@@ -1,97 +1,174 @@
-
 # Assumptions for Linear Regression
 
 ## Introduction
-Least Squares is one of the most common regression techniques for linear models. As long as our model satisfies the least squares regression assumptions, we can get the best possible estimates. In this lesson, you will learn about these assumptions.
+
+Like any other statistical technique, the coefficients and p-values of a linear regression model are based on underlying assumptions about the variables and the relationships between them. In this lesson, you will learn about these assumptions.
 
 ## Objectives
+
 You will be able to:
 
+- Explain why linear regression assumptions are important
 - List the assumptions of linear regression
-- Determine if a particular set of data exhibits the assumptions of linear regression
 
-## About Regression Assumptions
+## Regression Assumptions and Model Diagnostics
 
-Regression is a powerful analysis technique that is routinely used to answer complex analytical questions. However, if some of the necessary assumptions are not satisfied, you may not be able to get good and trustworthy results!
+When you fit a regression model, the algorithm will find a best fit line **according to how you have defined the model**. If the model is ill-defined, you will still get coefficients and p-values, but they might not actually describe the true relationship between the underlying variables.
 
-In this lesson, you'll dig deeper into the topic of ordinary least squares (OLS) regression assumptions. Additionally, you'll learn about their importance as well as some techniques to help us determine whether your model satisfies the assumptions.
+For example, let's say you fit this model:
 
-## Regression is "Parametric"
 
-Regression is a parametric technique, which means that it uses parameters learned from the data. Because of that, certain assumptions must be made. These assumptions define the complete scope of regression analysis and it is **mandatory** that the underlying data fulfills these assumptions. If violated, regression makes biased and unreliable predictions. Luckily, we have measures to check for these assumptions.
+```python
+import numpy as np
+import statsmodels.api as sm
+
+X = np.linspace(1, 10).reshape(-1, 1)
+y = np.exp(X)
+
+model = sm.OLS(y, sm.add_constant(X))
+results = model.fit()
+
+print(f"""
+Model p-value:   {results.f_pvalue}
+Model R-Squared: {results.rsquared}
+Coef p-value:    {results.pvalues[1]}
+Coef value:      {results.params[1]}
+""")
+```
+
+    
+    Model p-value:   5.1201996804078596e-09
+    Model R-Squared: 0.5124264403042176
+    Coef p-value:    5.120199680407825e-09
+    Coef value:      1341.4381373622189
+    
+
+
+Ok, so you are explaining about 51% of the variance in `y`, and for each increase of 1 in `X` you see an associated increase of about 1.3k in `y`. The model overall and the coefficient for `X` are statistically significant.
+
+Other than the fact that these are made-up variables, what's the problem here?
+
+Well, let's look at the graph:
+
+
+```python
+import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots()
+ax.scatter(X, y, label="data points")
+ax.plot(X, results.predict(sm.add_constant(X)), label="best fit line")
+ax.legend();
+```
+
+
+    
+![png](index_files/index_4_0.png)
+    
+
+
+Just by looking at that graph, you can tell that this model is not actually a good fit for the data. The ordinary least squares algorithm found a line that would maximize the explained error, but that doesn't mean you would actually want to use this model for inference _or_ prediction.
+
+Linear regression assumptions formalize the ways that a model can be "off" and give you tools beyond just visualization in order to diagnose the problem!
+
+"What are the assumptions of linear regression?" is also a common technical interview question, so we recommend that you use the acronym LINE to remember them: **L**inearity, **I**ndependence, **N**ormality, **E**qual Variance (Homoscedasticity).
 
 ## 1. Linearity
 
-> The linearity assumptions requires that there is a **linear relationship** between the response variable (Y) and predictor (X). Linear means that the change in Y by 1-unit change in X, is constant. 
+> The linearity assumption requires that there is a **linear relationship** between the response variable (y) and predictor (X). Linear means that the change in y by 1-unit change in X, is constant. 
 
 
 <img src="images/lin_2.png" width="800">
 
+As shown above, if we try to fit a linear model to a non-linear data set, OLS will fail to capture the trend mathematically, resulting in an inaccurate relationship.
 
-As shown above, If we try to fit a linear model to a non-linear data set, OLS will fail to capture the trend mathematically, resulting in an inaccurate relationship. This will also result in erroneous predictions on an unseen data set.  
+## 2. Independence
 
->The linearity assumption can best be tested with scatter plots 
+The independence assumption has two parts: independence of features and independence of errors.
 
-For non-linear relationships, you can use non-linear mathematical functions to fit the data e.g. polynomial and exponential functions. You'll come across these later. 
+### Independence of Features
 
-**Note: As an extra measure, it is also important to check for outliers as the presence of outliers in the data can have a major impact on the model.**
+> Independence of features means that we want to **avoid collinearity** between features in a multiple regression.
 
-<img src="images/outliers.png" width="600">
+Collinearity means that the _features_ can be used to predict each other, which causes numerical problems for the regression algorithm and leads to unstable coefficients.
 
 
-In the above example, we can see that an outlier prohibits the model to estimate the true relationship between variables by introducing bias. 
+```python
+import seaborn as sns
+import pandas as pd
 
-## 2. Normality 
+np.random.seed(1)
+df = pd.DataFrame()
+df["x1"] = np.linspace(1, 10, 100) + np.random.normal(scale=5, size=100)
+df["x2"] = df["x1"] * 2 # x2 is just a linear transformation of x1
+df["y"] = df["x2"] + np.random.normal(scale=3, size=100)
+
+plot = sns.pairplot(df)
+plot.fig.suptitle("Collinear Features", fontsize="x-large")
+plot.fig.tight_layout();
+```
+
+
+    
+![png](index_files/index_8_0.png)
+    
+
+
+In addition to collinearity (where one predictor variable linearly predicts another), you also want to **avoid multicollinearity**. Multicollinearity means that multiple predictors can come together to linearly predict one of the predictors. This is more challenging to visualize but we will introduce numerical approaches to assess it.
+
+### Independence of Errors
+
+> Independence of errors means we want to **avoid autocorrelation** of errors. Autocorrelation means that a variable is correlated with itself, so that later values can be predicted based on previous values plus a lag.
+
+
+```python
+y = np.sin(X) + np.random.normal(scale=0.1, size=50).reshape(-1, 1)
+
+model = sm.OLS(y, sm.add_constant(X))
+results = model.fit()
+
+fig, axes = plt.subplots(ncols=2, figsize=(10,5))
+axes[0].scatter(X, y)
+axes[0].set_title("X vs. y")
+axes[1].scatter(X, y.reshape(1, -1) - results.predict(sm.add_constant(X)))
+axes[1].set_title("X vs. residuals")
+fig.suptitle("Autocorrelation of Errors", fontsize="x-large");
+```
+
+
+    
+![png](index_files/index_11_0.png)
+    
+
+
+## 3. Normality 
 
 
 > The normality assumption states that the **model residuals** should follow a normal distribution
 
-Note that the normality assumption talks about the **model residuals** and _not_ about the distributions of the **variables**! In general, data scientists will often check the distributions of the variables as well. Keep in mind that the normality assumption is mandatory for the residuals, and it is useful to check normality of your variables to check for weirdness (more on data distributions later), but OLS works fine for non-normal data distributions in the context of prediction. 
-
-The easiest way to check for the normality assumption is with histograms or a Q-Q-Plots. 
-
-### Histograms
-We have already seen quite a few histograms and also know how to build them. You can use histograms to check the errors generated by the model and see if the plot shows a so-called "normal distribution" (bell curve shape). As the error term follows a normal distribution, we can develop better confidence in the results and calculate the statistical significance. An example of a regression error histogram is shown below:
+Note that the normality assumption talks about the model residuals and _not_ about the distributions of the variables! In general, data scientists will often check the distributions of the variables as well.
 
 <img src="images/inhouse_histo.png" width="800">
 
-### Q-Q Plots
+## 4. Equal Variance: Homoscedasticity 
 
->In statistics, a Q–Q (quantile-quantile) plot is a probability plot, which is a graphical method for comparing two probability distributions by plotting their quantiles against each other.
+> The equal variance (homoscedasticity) assumption states that we want to **avoid heteroscedasticity**
 
-The Q-Q plot (quantile-quantile plot) is used to help assess if a sample comes from a known distribution such as a normal distribution. For regression, when checking if the data in this sample is normally distributed, we can use a Normal Q-Q plot to test that assumption. Remember that this is just a visual check, so the interpretation remains subjective. However, it is a good first check to see the overall shape of your data against the required distribution. If you can reject normality through Q-Q plots, you have saved yourself from a lot of statistical testing. You have to be careful, however, when deciding that data is totally normal just by looking at a Q-Q plot.
-
-
-Below, you can find a few examples of comparing histograms and corresponding plots. You can see how the quantiles of normal data appear as a straight line along the diagonal when plotted against a standard normal distribution's quantiles. The skewness and kurtosis of data can also be inspected this way  
-
-<img src="images/inhouse_qq_plots.png" width="600">
-
-In the context of normality of residuals, Q-Q plots can help you validate the assumption of normally distributed residuals. It uses standardized values of residuals to determine the normal distribution of errors. Ideally, this plot should show a straight line. A curved, distorted line suggests residuals have a non-normal distribution.[Here is a good article](https://data.library.virginia.edu/understanding-q-q-plots/) explaining the interpretation of Q-Q plots in detail. 
-
-Normality can also be checked with goodness of fit tests such as the Kolmogorov-Smirnov test.  When the data is not normally distributed, there are some ways to fix that, such as a non-linear transformation (e.g., log-transformation).
-
-## 3. Homoscedasticity 
-
-> _Heteroscedasticity_ (also spelled heteroskedasticity) refers to the circumstance in which the dependent variable is unequal across the range of values of the predictor(s).
+_Heteroscedasticity_ (also spelled heteroskedasticity) refers to the circumstance in which the dependent variable is unequal across the range of values of the predictor(s).
 
 When there is heteroscedasticity in the data, a scatterplot of these variables will often create a cone-like shape. The scatter of the dependent variable widens or narrows as the value of the independent variable increases. 
 
-The inverse of heteroscedasticity is _homoscedasticity_, which indicates that a dependent variable's variability is equal across values of the independent variable. **Homoscedasticity is the third assumption necessary when creating a linear regression model.**
+The inverse of heteroscedasticity is _homoscedasticity_, which indicates that a dependent variable's variability is equal across values of the independent variable.
 
 <img src="images/homo_2.png" width="700">
 
-A scatter plot is good way to check whether the data are homoscedastic (meaning the residuals are equal across the regression line).  The scatter plots shown here are examples of data that are heteroscedastic (except the plot far right). You can also use significance tests like Breusch-Pagan / Cook-Weisberg test or White general test to detect this phenomenon. Remember that, if these tests give you a p-value < 0.05, the null hypothesis can rejected, and you can assume the data is heteroscedastic.
+## Diagnostics with Residuals
 
+Looking at the residuals is the single best way to flag potential violations of linear regression assumptions and figure out what to do about them. In the upcoming lessons you will learn more concrete approaches (e.g. statistical tests) that will tell you _whether_ an assumption is being met, but plotting residuals is likely to help you figure out _why_ this is happening.
 
-## What Else?
+Below are some general shapes of residual plots that you should be aware of:
 
-There are other assumptions for linear regression that apply to more complicated cases, but for now these three assumptions are sufficient.
-
-As a first check, always looks at plots of the residuals. If you see anything similar to what is shown below, you are violating one or more assumptions and the results will not be reliable.
 <img src="images/prob_2.png" width="700">
-
-
 
 ## Summary 
 
-In this lesson, you learned about some assumptions for a simple linear regression that must be held in order to interpret the results reliably. As mentioned earlier, once these assumptions are confirmed, you can run your regression model. Next, you'll be exposed to some examples!
+Linear regression assumptions underpin the validity and reliability of your model. The algorithm will find _some_ coefficients and p-values, but their validity depends on the model being appropriately specified. The four assumptions can be remembered using the acronym LINE: linearity, independence, normality, and equal variance (homoscedasticity). In upcoming lessons we'll get into more detail about how to measure regression assumptions.
