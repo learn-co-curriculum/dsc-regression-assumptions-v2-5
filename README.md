@@ -117,7 +117,9 @@ In addition to collinearity (where one predictor variable linearly predicts anot
 
 ### Independence of Errors
 
-> Independence of errors means we want to **avoid autocorrelation** of errors. Autocorrelation means that a variable is correlated with itself, so that later values can be predicted based on previous values plus a lag.
+> Independence of errors means we want to **avoid autocorrelation** of errors. Autocorrelation means that a variable is correlated with itself, so that later values can be predicted based on previous values.
+
+If a variable is autocorrelated then a _time series_ modeling approach is likely more appropriate than linear regression.
 
 
 ```python
@@ -151,13 +153,13 @@ Note that the normality assumption talks about the model residuals and _not_ abo
 
 ## 4. Equal Variance: Homoscedasticity 
 
-> The equal variance (homoscedasticity) assumption states that we want to **avoid heteroscedasticity**
+> The equal variance (homoscedasticity) assumption states that we want to **avoid heteroscedasticity** of the errors
 
-_Heteroscedasticity_ (also spelled heteroskedasticity) refers to the circumstance in which the dependent variable is unequal across the range of values of the predictor(s).
+_Heteroscedasticity_ (also spelled heteroskedasticity) refers to the circumstance in which a variable's variability is unequal across the range of values of the predictor(s).
 
-When there is heteroscedasticity in the data, a scatterplot of these variables will often create a cone-like shape. The scatter of the dependent variable widens or narrows as the value of the independent variable increases. 
+When there is heteroscedasticity in the data, a scatter plot of these variables will often create a cone-like shape. The scatter of the errors widens or narrows as the value of the independent variable increases. 
 
-The inverse of heteroscedasticity is _homoscedasticity_, which indicates that a dependent variable's variability is equal across values of the independent variable.
+The inverse of heteroscedasticity is _homoscedasticity_, which indicates that a variable's variability is equal across values of the independent variable.
 
 <img src="images/homo_2.png" width="700">
 
